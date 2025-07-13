@@ -264,11 +264,12 @@ def run_command(command: str, *, check: bool = True) -> subprocess.CompletedProc
             text=True,
         )
         logger.info("Command completed: %s", command[:50] + "..." if len(command) > 50 else command)
-        return result
     except subprocess.CalledProcessError as e:
         logger.exception("Command failed: %s", command)
-        logger.error("Error output: %s", e.stderr)
+        logger.exception("Error output: %s", e.stderr)
         raise
+    else:
+        return result
 
 
 def check_dependencies() -> dict[str, bool]:
@@ -281,7 +282,8 @@ def check_dependencies() -> dict[str, bool]:
     tools = ["gatk", "bwa", "samtools", "bcftools", "fastqc"]
     status = {}
 
-    for tool in tools:
+    def check_tool(tool: str) -> bool:
+        """Check if a tool is available."""
         try:
             result = subprocess.run(
                 f"which {tool}",
@@ -290,9 +292,13 @@ def check_dependencies() -> dict[str, bool]:
                 capture_output=True,
                 text=True,
             )
-            status[tool] = result.returncode == 0
         except Exception:  # noqa: BLE001
-            status[tool] = False
+            return False
+        else:
+            return result.returncode == 0
+
+    for tool in tools:
+        status[tool] = check_tool(tool)
 
     return status
 

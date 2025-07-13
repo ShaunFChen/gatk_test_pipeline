@@ -27,7 +27,7 @@ class BisulfiteSimulator:
         self.read_length = read_length
         self.random_seed = 42
         random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
+        self.rng = np.random.default_rng(self.random_seed)
 
     def generate_reference_sequence(self, length: int = 10000) -> str:
         """Generate a random reference sequence.
@@ -93,7 +93,7 @@ class BisulfiteSimulator:
         converted = []
         c_index = 0
 
-        for i, base in enumerate(sequence):
+        for _i, base in enumerate(sequence):
             if base == "C":
                 if c_index < len(methylation_pattern):
                     if methylation_pattern[c_index]:
@@ -482,7 +482,7 @@ def create_conversion_efficiency_plot(metrics: dict[str, float]) -> go.Figure:
     metric_names = ["overall_efficiency", "cpg_efficiency", "chg_efficiency", "chh_efficiency"]
     positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
 
-    for i, (metric_name, (row, col)) in enumerate(zip(metric_names, positions, strict=False)):
+    for _i, (metric_name, (row, col)) in enumerate(zip(metric_names, positions, strict=False)):
         value = metrics.get(metric_name, 0)
 
         # Determine color based on efficiency

@@ -40,7 +40,11 @@ ignore = [
     "D101",  # Missing docstring in public class
     "COM812",  # Conflicts with formatter
     "D203",  # Incompatible with D211
-    "D213"   # Incompatible with D212
+    "D213",  # Incompatible with D212
+    "S101",  # Assert usage (acceptable in tests)
+    "S311",  # Random number usage (acceptable for scientific simulations)
+    "S602",  # shell=True usage (needed for bioinformatics tools)
+    "PLR2004",  # Magic numbers (scientific constants are acceptable)
 ]
 
 [tool.ruff.format]
