@@ -12,12 +12,18 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "scipy>=1.15.3",
+    "pysam",
+    "pyfaidx",
+    "plotly",
+    "biopython",
+    "tqdm",
 ]
 
 [dependency-groups]
 dev = [
     "jupyter",
-    "ruff"
+    "ruff",
+    "pytest"
 ]
 
 [build-system]
