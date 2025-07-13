@@ -52,17 +52,12 @@ dependencies = [
 [dependency-groups]
 dev = [
     "jupyter",
-    "pytest",
     "ruff"
 ]
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.pytest.ini_options]
-addopts = "--maxfail=1 --disable-warnings"
-testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
@@ -80,13 +75,6 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
-[tool.coverage.run]
-branch = true
-source = ["src"]
-
-[tool.coverage.report]
-show_missing = true
 EOF
 
 # Dockerfile with uv and bioinformatics tools
@@ -157,8 +145,6 @@ jobs:
           uv pip install --group dev
       - name: Lint
         run: uv run ruff .
-      - name: Test
-        run: uv run pytest --cov=src --cov-report=term-missing
 EOF
 
 # VS Code dev container configuration
