@@ -1,0 +1,13 @@
+{
+  "name": "gatk_test_pipeline",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
+    }
+  },
+  "mounts": [
+    "source=.,target=/workspace,type=bind"
+  ],
+  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv venv && uv pip install . && uv pip install --group dev"
+}
