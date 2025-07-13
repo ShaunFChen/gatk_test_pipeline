@@ -23,7 +23,8 @@ dependencies = [
 dev = [
     "jupyter",
     "ruff",
-    "pytest"
+    "pytest",
+    "mypy"
 ]
 
 [build-system]
