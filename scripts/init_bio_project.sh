@@ -46,7 +46,8 @@ dependencies = [
     "numpy",
     "scikit-learn",
     "matplotlib",
-    "seaborn"
+    "seaborn",
+    "scipy>=1.15.3",
 ]
 
 [dependency-groups]
@@ -137,14 +138,15 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "PATH=\"/home/runner/.local/bin:\\\$PATH\"" >> \$GITHUB_ENV
+      - name: Add uv to PATH
+        run: echo "/home/runner/.local/bin" >> \$GITHUB_PATH
       - name: Create venv and install dependencies
         run: |
           uv venv
           uv pip install .
           uv pip install --group dev
       - name: Lint
-        run: uv run ruff .
+        run: uv run ruff check .
 EOF
 
 # VS Code dev container configuration
