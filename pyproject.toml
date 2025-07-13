@@ -10,7 +10,8 @@ dependencies = [
     "numpy",
     "scikit-learn",
     "matplotlib",
-    "seaborn"
+    "seaborn",
+    "scipy>=1.15.3",
 ]
 
 [dependency-groups]
