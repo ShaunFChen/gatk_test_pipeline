@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-src/gatk_test_pipeline.egg-info/PKG-INFO
-src/gatk_test_pipeline.egg-info/SOURCES.txt
-src/gatk_test_pipeline.egg-info/dependency_links.txt
-src/gatk_test_pipeline.egg-info/requires.txt
-src/gatk_test_pipeline.egg-info/top_level.txt
