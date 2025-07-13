@@ -23,9 +23,9 @@ jobs:
           uv pip install --group dev
       - name: Lint
         run: |
-	  source .venv/bin/activate
-	  ruff .
+          source .venv/bin/activate
+          ruff .
       - name: Test
         run: |
-	  source .venv/bin/activate
-	  pytest --cov=src --cov-report=term-missing
+          source .venv/bin/activate
+          pytest --cov=src --cov-report=term-missing
