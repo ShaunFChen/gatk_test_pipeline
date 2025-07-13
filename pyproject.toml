@@ -1,17 +1,43 @@
 [project]
-name = "test_project"
+name = "gatk_test_pipeline"
 version = "0.1.0"
-description = "Bioinformatics analysis pipeline"
+description = ""
+authors = [{ name = "Your Name", email = "you@example.com" }]
+readme = "README.md"
 requires-python = ">=3.10"
-
 dependencies = [
-    "numpy",
     "pandas",
-    "scipy",
-    "jupyter",
+    "numpy",
+    "scikit-learn",
     "matplotlib",
-    "seaborn"
+    "seaborn",
+    "scipy>=1.15.3",
 ]
 
-[tool.uv.pip]
-compile = true
+[dependency-groups]
+dev = [
+    "jupyter",
+    "ruff"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL", "E", "F", "B"]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "COM812",  # Conflicts with formatter
+    "D203",  # Incompatible with D211
+    "D213"   # Incompatible with D212
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+

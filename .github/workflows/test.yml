@@ -1,0 +1,25 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Add uv to PATH
+        run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
+      - name: Create venv and install dependencies
+        run: |
+          uv venv
+          uv pip install .
+          uv pip install --group dev
+      - name: Lint
+        run: uv run ruff check .
