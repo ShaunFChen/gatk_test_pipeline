@@ -14,7 +14,6 @@ mkdir -p "$PROJECT_NAME" && cd "$PROJECT_NAME"
 # Initialize basic layout (Git initialization left to user)
 mkdir -p data notebooks src tests .github/workflows .devcontainer
 
-touch src/__init__.py
 touch data/.gitkeep
 touch notebooks/.gitkeep
 
@@ -67,11 +66,16 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-select = ["E", "F", "B"]
 
 [tool.ruff.lint]
-select = ["ALL"]
-ignore = ["D100", "D101"]
+select = ["ALL", "E", "F", "B"]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "COM812",  # Conflicts with formatter
+    "D203",  # Incompatible with D211
+    "D213"   # Incompatible with D212
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -152,9 +156,9 @@ jobs:
           uv pip install .
           uv pip install --group dev
       - name: Lint
-        run: ruff .
+        run: uv run ruff .
       - name: Test
-        run: pytest --cov=src --cov-report=term-missing
+        run: uv run pytest --cov=src --cov-report=term-missing
 EOF
 
 # VS Code dev container configuration
