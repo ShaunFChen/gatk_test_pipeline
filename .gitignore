@@ -1,9 +1,268 @@
-# Packaging artifacts
-*.egg-info/
-
+# Python
 __pycache__/
-*.pyc
-.venv/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
 .env
-.ipynb_checkpoints/
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/tasks.json
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# OS-specific files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ruff cache
+.ruff_cache/
+
+# Bioinformatics specific
+*.bam
+*.bai
+*.sam
+*.vcf
+*.vcf.gz
+*.vcf.idx
+*.bed
+*.fasta
+*.fa
+*.fastq
+*.fq
+*.gz
+*.tbi
+*.csi
+*.gff
+*.gff3
+*.gtf
+*.wig
+*.bigwig
+*.bw
+*.bedgraph
+*.maf
+*.psl
+*.chain
+*.2bit
+*.dict
+*.fai
+*.amb
+*.ann
+*.bwt
+*.pac
+*.sa
+*.sai
+*.bt2
+*.bt2l
+*.bowtie2
+*.bam.bai
+*.sam.bai
+*.fasta.fai
+*.fa.fai
+*.fq.gz
+*.fastq.gz
+*_R1_*.fastq*
+*_R2_*.fastq*
+*_1.fastq*
+*_2.fastq*
+*_trimmed*
+*_filtered*
+*_sorted*
+*_marked*
+*_recalibrated*
+*_variants*
+*_annotated*
+gatk_logs/
+trimmomatic_logs/
+bowtie2_logs/
+bwa_logs/
+star_logs/
+salmon_logs/
+kallisto_logs/
+picard_logs/
+multiqc_data/
+multiqc_report.html
+fastqc_results/
+*.html
+*.zip
+temp/
+tmp/
+scratch/
+work/
+results/
+output/
+logs/
+benchmarks/
+profiles/
+dag.pdf
+dag.png
+dag.svg
+report.html
+timeline.html
+trace.txt
+execution_trace.txt
+execution_report.html
+*.lsf
+*.pbs
+*.slurm
+*.out
+*.err
+*.log
+*.e*
+*.o*
+*.pe*
+*.po*
+.nextflow/
+.nextflow.log*
+nextflow.config
+.snakemake/
+Snakefile.orig
+*.sif
+*.img
+singularity_cache/
+apptainer_cache/
+conda_cache/
+mamba_cache/

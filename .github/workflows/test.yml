@@ -1,20 +1,46 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install Python & Ruff
-        run: |
-          pip install ruff
-      - name: Lint
-        run: ruff check .
-      - name: Format check
-        run: ruff format --check .
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+    
+    - name: Set up Python 3.10
+      run: uv python install 3.10
+    
+    - name: Install dependencies
+      run: |
+        uv sync --group dev
+    
+    - name: Run linting
+      run: |
+        uv run ruff check .
+    
+    - name: Run format check
+      run: |
+        uv run ruff format --check .
+    
+    - name: Run tests
+      run: |
+        uv run pytest tests/ -v --tb=short
+    
+    - name: Run type checking
+      run: |
+        uv run mypy src/ --ignore-missing-imports
+    
+    - name: Check package can be built
+      run: |
+        uv build
