@@ -5,29 +5,24 @@ This directory contains sample genomic data files generated for demonstrating bi
 ## Files Overview
 
 ### Generated Data Files
-- **`chr22_sample.fa`** - Sample reference genome (45,000 bp)
+- **`chr22_sample.fa`** - Sample reference genome
   - Simulated chromosome 22 subset with realistic GC content
   - Includes CpG islands and varying sequence composition
   - FASTA format compatible with standard bioinformatics tools
 
-- **`sample_variants.vcf`** - Sample variant calls (150 variants)
-  - SNPs, insertions, and deletions
-  - Realistic quality scores and depth information
-  - VCF 4.2 format with proper headers
-
-- **`bisulfite_sample.fastq`** - Bisulfite sequencing reads (2,000 reads)
+- **`bisulfite_sample.fastq`** - Bisulfite sequencing reads
   - Simulated bisulfite-converted DNA sequences
-  - 100bp read length with quality scores
+  - Realistic read length with quality scores
   - Realistic conversion efficiency and methylation patterns
 
-- **`sample_alignment_stats.txt`** - Alignment statistics
-  - Coverage information across genomic positions
-  - Simulated BAM file statistics
-  - Used for quality control demonstrations
+### Data Subdirectories
+- **`alignments/`** - BAM/SAM alignment files and indices
+- **`giab/`** - GIAB (Genome in a Bottle) benchmark data
+- **`reference/`** - Reference genome files and indices
 
-- **`sample_sheet.csv`** - Sample metadata
-  - Sample names, batch information, and processing parameters
-  - Used for batch processing demonstrations
+### Metadata Files
+- **`DATA_MANIFEST.md`** - Detailed inventory of all data files
+- **`README.md`** - This documentation file
 
 ## Data Generation
 
@@ -36,7 +31,7 @@ The sample data is generated using:
 uv run python scripts/generate_sample_data.py
 ```
 
-This creates realistic but small datasets suitable for:
+This creates realistic but appropriately-sized datasets suitable for:
 - Educational purposes
 - Testing bioinformatics workflows
 - Interview demonstrations
@@ -46,57 +41,59 @@ This creates realistic but small datasets suitable for:
 
 The data files are automatically loaded by the notebooks:
 
-### Variant Calling Pipeline (`01_variant_calling_pipeline.ipynb`)
-- Loads and analyzes VCF files
+### Variant Calling Pipeline (`01_variant_calling_pipeline.py`)
+- Loads and analyzes reference sequences
+- Demonstrates alignment and variant calling workflows
 - Calculates variant quality metrics
-- Demonstrates Ti/Tv ratio calculations
-- Shows coverage analysis
+- Shows coverage analysis and validation
 
-### Bisulfite Conversion Analysis (`02_bisulfite_conversion_efficiency.ipynb`)
-- Processes FASTQ reads
-- Calculates conversion efficiency
+### Bisulfite Conversion Analysis (`02_bisulfite_conversion_efficiency.py`)
+- Processes FASTQ reads for bisulfite analysis
+- Calculates conversion efficiency metrics
 - Performs quality control analysis
 - Compares with simulated data
 
 ## Data Characteristics
 
-### Reference Genome
-- Length: 45,000 bp
-- GC content: ~42%
-- Contains CpG islands every 5kb
-- Realistic sequence composition
+The generated data includes realistic characteristics:
 
-### Variants
-- 150 total variants (3.3 per kb)
-- ~63% SNPs, ~37% indels
-- Quality scores: 30-60
-- Coverage: 10-100x
+### Reference Genome
+- Chromosome 22 subset with appropriate length
+- Realistic GC content (~42%)
+- Contains CpG islands at appropriate intervals
+- Standard FASTA format
 
 ### Bisulfite Reads
-- 2,000 reads at 100bp each
-- ~98% conversion efficiency
+- Quality reads with appropriate length
+- High conversion efficiency (>95%)
 - Realistic methylation patterns
 - CpG, CHG, CHH contexts included
+- Standard FASTQ format with quality scores
+
+### Alignment Data
+- BAM/SAM files with proper headers
+- Realistic alignment statistics
+- Index files for efficient access
 
 ## File Formats
 
 All files use standard bioinformatics formats:
 - **FASTA**: Reference sequences
-- **VCF**: Variant call format
 - **FASTQ**: Sequencing reads with quality scores
-- **CSV**: Sample metadata
-- **TXT**: Analysis results and statistics
+- **BAM/SAM**: Binary/text alignment format
+- **VCF**: Variant call format
+- **Markdown**: Documentation and manifests
 
 ## Git Configuration
 
-These data files are ignored by git (see `.gitignore`) to avoid committing large binary files to the repository. The data is regenerated as needed using the generation script.
+Large data files are managed according to the project's `.gitignore` configuration. Sample data files are regenerated as needed using the generation scripts to maintain repository efficiency.
 
 ## Production Notes
 
 In production environments, you would replace these sample files with:
 - Real reference genomes (e.g., GRCh38/hg38)
-- Actual VCF files from variant calling pipelines
-- Real bisulfite sequencing data
+- Actual sequencing data from your experiments
+- Real alignment and variant calling results
 - Proper sample metadata and batch information
 
-The analysis workflows demonstrated with this sample data scale directly to production datasets. 
+The analysis workflows demonstrated with this sample data scale directly to production datasets with real genomic data. 
