@@ -1,0 +1,56 @@
+# Snakemake Workflow Configuration
+# Pipeline monitoring and benchmarking settings
+
+# Resource allocation
+threads: 4
+memory_mb: 8000
+runtime_minutes: 60
+
+# Pipeline-specific settings
+variant_calling:
+  threads: 4
+  memory_mb: 8000
+  runtime_minutes: 30
+  
+bisulfite_analysis:
+  threads: 2
+  memory_mb: 4000
+  runtime_minutes: 15
+
+# Performance monitoring
+enable_benchmarking: true
+enable_resource_monitoring: true
+generate_reports: true
+
+# Output settings
+output_formats:
+  - html
+  - json
+  - txt
+
+# Logging levels
+log_level: "INFO"
+
+# Parallelization settings
+max_parallel_jobs: 2
+use_cluster: false
+
+# Quality control thresholds
+quality_thresholds:
+  variant_calling:
+    min_ti_tv_ratio: 2.0
+    min_coverage: 10
+    max_runtime_minutes: 45
+  
+  bisulfite:
+    min_conversion_efficiency: 0.95
+    max_runtime_minutes: 20
+
+# Notification settings
+notifications:
+  email: false
+  slack: false
+  
+# Development mode settings
+development_mode: true
+cleanup_temp_files: true 

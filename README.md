@@ -31,32 +31,77 @@ A comprehensive bioinformatics pipeline for variant calling and bisulfite conver
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Python 3.10+** 
+- **Python 3.11+** 
 - **UV package manager** ([install from astral.sh/uv](https://astral.sh/uv))
+- **Docker** (optional, for full bioinformatics tools)
 
-### Setup
+### Environment Options
+
+#### Option 1: Local Development (Python-only)
 ```bash
 # Clone and enter directory
 git clone <repository-url>
 cd gatk_test_pipeline
 
 # Create environment and install dependencies
-uv venv --python 3.10
+uv venv --python 3.11
 uv sync --group dev
 
 # Verify setup
-uv run python --version          # Should show Python 3.10.x
+uv run python --version          # Should show Python 3.11.x
 uv run python -c "import pandas; print('✅ Pandas:', pandas.__version__)"
 make test                        # Should pass all 12 tests
 ```
 
+#### Option 2: Docker (Full Bioinformatics Tools)
+```bash
+# Build Docker image with all bioinformatics tools
+make docker-build
+
+# Run notebooks with full tool support
+make run-notebooks-docker
+
+# Convert notebooks to HTML with full environment
+make notebooks-html-docker
+
+# Run Snakemake workflow in Docker
+make snakemake-docker
+```
+
+### Bioinformatics Tools
+
+The project includes interfaces for:
+- **GATK**: Variant calling and analysis
+- **BWA**: Read alignment  
+- **samtools/pysam**: BAM file manipulation
+- **bcftools**: VCF file processing
+- **FastQC**: Quality control
+
+**Tool Availability:**
+- **Local Environment**: Only Python tools (pysam, pandas, matplotlib)
+- **Docker Environment**: Full bioinformatics suite (GATK, BWA, samtools, etc.)
+
+Check tool availability:
+```bash
+make check-deps
+```
+
 ### Usage
+
+#### Local Environment
 ```bash
 make help           # Show all available commands
 make test           # Run unit tests
 make jupyter        # Start Jupyter Lab
 make quality-check  # Run linting, formatting, and tests
-make docker-build   # Build Docker image
+make notebooks-html # Convert notebooks to HTML
+```
+
+#### Docker Environment
+```bash
+make docker-build          # Build Docker image
+make run-notebooks-docker  # Run notebooks with full tools
+make snakemake-docker      # Run Snakemake workflow
 ```
 
 ---
@@ -250,3 +295,77 @@ Feel free to modify and extend for your specific needs!
 ## 📄 License
 
 This project is for educational and interview preparation purposes. Feel free to use and modify as needed.
+
+---
+
+## 🔬 Snakemake Workflow Management
+
+### Overview
+This project includes a comprehensive **Snakemake workflow** for pipeline monitoring, benchmarking, and parallel execution. Snakemake provides production-ready workflow management with automatic resource tracking and performance analysis.
+
+### Quick Start with Snakemake
+```bash
+# Run both pipelines with monitoring
+uv run snakemake --cores 2
+
+# View performance report
+open output/pipeline_performance_report.html
+
+# Clean outputs
+uv run snakemake clean
+```
+
+### Workflow Features
+- **🔄 Automatic Pipeline Orchestration**: Manages dependencies and execution order
+- **📊 Performance Benchmarking**: Real-time CPU, memory, and I/O monitoring
+- **⚡ Parallel Processing**: Multi-core execution with resource constraints
+- **📈 Professional Reports**: HTML dashboards with performance visualizations
+- **🎯 Quality Control**: Automated validation and error handling
+
+### Workflow Architecture
+```
+├── Snakefile                     # Main workflow definition
+├── workflow_config.yaml          # Configuration parameters
+├── scripts/generate_performance_report.py  # Report generation
+├── benchmarks/                   # Performance metrics
+├── logs/                         # Execution logs
+└── output/                       # Results and reports
+```
+
+### Configuration
+Edit `workflow_config.yaml` to customize:
+```yaml
+# Resource allocation
+threads: 4
+memory_mb: 8000
+runtime_minutes: 60
+
+# Quality control thresholds
+quality_thresholds:
+  variant_calling:
+    min_ti_tv_ratio: 2.0
+    min_coverage: 10
+  bisulfite:
+    min_conversion_efficiency: 0.95
+```
+
+### Advanced Usage
+```bash
+# Run with custom resources
+uv run snakemake --cores 4 --resources mem_mb=16000
+
+# Dry run to see planned execution
+uv run snakemake --dry-run
+
+# Run specific pipeline only
+uv run snakemake output/variant_calling_complete.txt
+
+# Generate only performance report
+uv run snakemake output/pipeline_performance_report.html
+```
+
+### Production Benefits
+- **Scalability**: Ready for HPC/cloud deployment
+- **Reproducibility**: Complete workflow versioning
+- **Monitoring**: Comprehensive performance tracking
+- **Quality Assurance**: Automated validation checks
