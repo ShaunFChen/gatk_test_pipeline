@@ -46,14 +46,32 @@ def smart_plot_output(fig_name: str, show_plots: bool | None = None):
         print(f"📊 Plot saved to output/{fig_name}.png")
 
 
-# Add src to path for utility functions
-project_root = Path.cwd().parent
-sys.path.append(str(project_root / "src"))
+# Setup project imports - works in both IDE and notebook execution
+def setup_project_imports():
+    """Add project root to Python path for importing src modules."""
+    current_path = Path.cwd()
 
-# Import utility functions from src/
-from variant_calling_utils import check_dependencies, build_gatk_command, calculate_ti_tv_ratio
-from performance_analysis import PipelinePerformanceAnalyzer
-from real_data_analysis import analyze_giab_ground_truth
+    # Find project root by looking for pyproject.toml
+    project_root = current_path
+    while project_root != project_root.parent:
+        if (project_root / "pyproject.toml").exists():
+            break
+        project_root = project_root.parent
+
+    # Add to path if not already there
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+    return project_root
+
+
+# Set up imports
+project_root = setup_project_imports()
+
+# Import utility functions from src package
+from src.variant_calling_utils import check_dependencies, build_gatk_command, calculate_ti_tv_ratio
+from src.performance_analysis import PipelinePerformanceAnalyzer
+from src.real_data_analysis import analyze_giab_ground_truth
 
 # Configuration
 DATA_DIR = project_root / "data"
