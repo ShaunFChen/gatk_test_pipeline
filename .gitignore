@@ -248,6 +248,19 @@ execution_report.html
 *.lsf
 *.pbs
 *.slurm
+
+# Sample data files
+data/chr22_sample.fa
+data/sample_variants.vcf
+data/bisulfite_sample.fastq
+data/sample_alignment_stats.txt
+data/sample_sheet.csv
+
+# Real genomic data files (large)
+data/reference/
+data/giab/
+data/alignments/
+data/DATA_MANIFEST.md
 *.out
 *.err
 *.log

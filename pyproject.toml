@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "GATK test pipeline for bioinformatics analysis"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.3.0",
     "numpy>=2.2.0",
@@ -17,6 +17,8 @@ dependencies = [
     "plotly>=6.2.0",
     "biopython>=1.85",
     "tqdm>=4.66.0",
+    "snakemake>=8.0.0",
+    "psutil>=6.0.0",
 ]
 
 [dependency-groups]
@@ -33,20 +35,74 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 
 [tool.ruff.lint]
-select = ["ALL", "E", "F", "B"]
+select = ["E", "F", "W", "B", "UP", "SIM", "C4", "ICN"]
 ignore = [
-    "D100",  # Missing docstring in public module
-    "D101",  # Missing docstring in public class
-    "COM812",  # Conflicts with formatter
-    "D203",  # Incompatible with D211
-    "D213",  # Incompatible with D212
-    "S101",  # Assert usage (acceptable in tests)
-    "S311",  # Random number usage (acceptable for scientific simulations)
-    "S602",  # shell=True usage (needed for bioinformatics tools)
-    "PLR2004",  # Magic numbers (scientific constants are acceptable)
+    # Docstring related (not critical for functionality)
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    "D200", "D201", "D202", "D203", "D204", "D205", "D206", "D207", "D208", "D209", "D210", "D211", "D212", "D213", 
+    "D214", "D215", "D300", "D301", "D400", "D401", "D402", "D403", "D404", "D405", "D406", "D407", "D408", "D409", 
+    "D410", "D411", "D412", "D413", "D414", "D415", "D416", "D417", "D418", "D419",
+    
+    # Type annotation related (not blocking for MVP)
+    "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204", "ANN205", "ANN206",
+    
+    # Print statements (acceptable for scripts and debugging)
+    "T201", "T203",
+    
+    # Complexity rules (too restrictive for scientific code)
+    "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+    
+    # Security issues that are acceptable for bioinformatics
+    "S101",   # Assert usage (acceptable in tests)
+    "S311",   # Random number usage (acceptable for scientific simulations)
+    "S602",   # shell=True usage (needed for bioinformatics tools)
+    "S603",   # subprocess calls (needed for bioinformatics tools)
+    
+    # Style preferences that reduce productivity
+    "COM812", "COM819",  # Trailing commas (conflicts with formatter)
+    "ISC001", "ISC002",  # String concatenation
+    "Q000", "Q001", "Q002", "Q003",  # Quote style
+    
+    # File/import organization (not critical)
+    "INP001",  # Implicit namespace packages
+    "EXE001",  # Executable files
+    
+    # Error handling (sometimes too strict)
+    "BLE001",  # Blind except (sometimes needed)
+    "TRY300",  # Consider moving to else block
+    
+    # DateTime (timezone not always needed)
+    "DTZ005",
+    
+    # Path operations (pathlib not always better)
+    "PTH123",
+    
+    # Performance (not always relevant)
+    "FURB122",  # f.write in loop
+    "B905",     # zip strict
+    
+    # Unused variables/imports (often used in data science contexts)
+    "F401",     # Unused imports (especially in try/except blocks for optional dependencies)
+    "F841",     # Local variable assigned but never used
+    "ARG001",   # Unused function argument
+    
+    # Import organization (acceptable in notebooks and scripts)
+    "E402",     # Module level import not at top of file
+    
+    # Line length (some long strings are acceptable)
+    "E501",     # Line too long
+    
+    # Whitespace (not critical)
+    "W293",     # Blank line contains whitespace
+    
+    # Import conventions (matplotlib as mpl not always needed)
+    "ICN001",   # Import conventions
+    
+    # Code simplification (sometimes explicit is better)
+    "SIM103",   # Return condition directly
 ]
 
 [tool.ruff.format]

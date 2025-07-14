@@ -8,21 +8,33 @@ help:
 	@echo "🛠️  GATK Test Pipeline - Local Quality Verification"
 	@echo "=================================================="
 	@echo "Available targets:"
-	@echo "  install       - Install dependencies with uv"
-	@echo "  test          - Run all tests"
-	@echo "  lint          - Run linting with ruff"
-	@echo "  format        - Format code with ruff"
-	@echo "  check-format  - Check code formatting (CI mode)"
-	@echo "  type-check    - Run type checking (if mypy available)"
-	@echo "  quality-check - Run all quality checks (lint + format + test)"
-	@echo "  clean         - Clean build artifacts"
-	@echo "  build         - Build the package"
-	@echo "  docker-build  - Build Docker image"
-	@echo "  docker-run    - Run Docker container"
-	@echo "  jupyter       - Start Jupyter Lab"
+	@echo "  install            - Install dependencies with uv"
+	@echo "  test               - Run all tests"
+	@echo "  lint               - Run linting with ruff"
+	@echo "  format             - Format code with ruff"
+	@echo "  check-format       - Check code formatting (CI mode)"
+	@echo "  type-check         - Run type checking (if mypy available)"
+	@echo "  quality-check      - Run all quality checks (lint + format + test)"
+	@echo "  clean              - Clean build artifacts"
+	@echo "  build              - Build the package"
+	@echo "  docker-build       - Build Docker image"
+	@echo "  docker-run         - Run Docker container"
+	@echo "  jupyter            - Start Jupyter Lab"
+	@echo "  notebooks-html     - Convert .py notebooks to .ipynb format"
+	@echo "  notebooks-run      - Run notebooks and save outputs"
+	@echo "  notebooks-html-docker - Convert notebooks to .ipynb (Docker with tools)"
+	@echo "  run-notebooks-docker - Run notebooks in Docker with bioinformatics tools"
+	@echo "  snakemake-docker   - Run Snakemake workflow in Docker"
+	@echo "  check-deps         - Check bioinformatics dependencies"
 	@echo ""
 	@echo "🚀 Quick workflow:"
 	@echo "  make install && make quality-check"
+	@echo ""
+	@echo "🧬 Bioinformatics workflow:"
+	@echo "  make docker-build && make run-notebooks-docker"
+	@echo ""
+	@echo "📓 Notebook workflow:"
+	@echo "  make notebooks-html && make jupyter"
 
 # Install dependencies
 install:
@@ -108,6 +120,49 @@ jupyter:
 	@echo "📓 Starting Jupyter Lab..."
 	uv run jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
 	@echo "✅ Jupyter Lab stopped"
+
+# Convert notebooks to HTML
+notebooks-html:
+	@echo "📄 Converting notebooks to HTML..."
+	mkdir -p output/notebooks
+	@echo "🔄 Converting variant calling notebook..."
+	uv run --with jupytext jupytext --to notebook notebooks/01_variant_calling_pipeline.py --output output/notebooks/01_variant_calling_pipeline.ipynb
+	@echo "🔄 Converting bisulfite analysis notebook..."
+	uv run --with jupytext jupytext --to notebook notebooks/02_bisulfite_conversion_efficiency.py --output output/notebooks/02_bisulfite_conversion_efficiency.ipynb
+	@echo "✅ Notebooks converted to .ipynb format"
+	@echo "📂 Notebook files saved to output/notebooks/"
+	@echo "💡 Open with: jupyter lab output/notebooks/"
+
+# Run notebooks and save outputs
+notebooks-run:
+	@echo "📓 Running notebooks to generate outputs..."
+	mkdir -p output/notebooks
+	@echo "🔄 Running variant calling notebook..."
+	uv run python notebooks/01_variant_calling_pipeline.py > output/notebooks/01_variant_calling_output.txt 2>&1
+	@echo "🔄 Running bisulfite analysis notebook..."
+	uv run python notebooks/02_bisulfite_conversion_efficiency.py > output/notebooks/02_bisulfite_output.txt 2>&1
+	@echo "✅ Notebook outputs saved"
+	@echo "📂 Output files saved to output/notebooks/"
+
+# Convert notebooks to executed HTML with Docker (full tools)
+notebooks-html-docker:
+	@echo "🐳 Converting notebooks to .ipynb format with Docker..."
+	docker run --rm -v $(PWD):/project gatk-interview bash -c "cd /project && mkdir -p output/notebooks && uv run --with jupytext jupytext --to notebook notebooks/01_variant_calling_pipeline.py --output output/notebooks/01_variant_calling_pipeline.ipynb && uv run --with jupytext jupytext --to notebook notebooks/02_bisulfite_conversion_efficiency.py --output output/notebooks/02_bisulfite_conversion_efficiency.ipynb"
+	@echo "✅ Notebooks converted to .ipynb format with Docker"
+	@echo "📂 Notebook files saved to output/notebooks/"
+	@echo "💡 Open with: jupyter lab output/notebooks/"
+
+# Run notebooks in Docker environment
+run-notebooks-docker:
+	@echo "🐳 Running notebooks in Docker with full bioinformatics tools..."
+	docker run --rm -v $(PWD):/project gatk-interview bash -c "cd /project && uv run python notebooks/01_variant_calling_pipeline.py && uv run python notebooks/02_bisulfite_conversion_efficiency.py"
+	@echo "✅ Notebooks completed in Docker"
+
+# Run Snakemake with Docker
+snakemake-docker:
+	@echo "🐳 Running Snakemake workflow in Docker..."
+	docker run --rm -v $(PWD):/project gatk-interview bash -c "cd /project && uv run snakemake --cores 2"
+	@echo "✅ Snakemake workflow completed in Docker"
 
 # Check dependencies
 check-deps:
