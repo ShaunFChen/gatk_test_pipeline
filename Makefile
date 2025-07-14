@@ -1,7 +1,7 @@
 # Makefile for GATK Test Pipeline - Local Quality Verification
 # Run this before pushing to avoid GitHub Actions failures
 
-.PHONY: help install test lint format check-format type-check quality-check clean build docker-build docker-run
+.PHONY: help install test lint format check-format type-check quality-check clean build docker-build docker-run notebooks-execute
 
 # Default target
 help:
@@ -21,6 +21,7 @@ help:
 	@echo "  docker-run         - Run Docker container"
 	@echo "  jupyter            - Start Jupyter Lab"
 	@echo "  notebooks-html     - Convert .py notebooks to .ipynb format"
+	@echo "  notebooks-execute  - Convert and execute .py notebooks to .ipynb with outputs"
 	@echo "  notebooks-run      - Run notebooks and save outputs"
 	@echo "  notebooks-html-docker - Convert notebooks to .ipynb (Docker with tools)"
 	@echo "  run-notebooks-docker - Run notebooks in Docker with bioinformatics tools"
@@ -34,7 +35,7 @@ help:
 	@echo "  make docker-build && make run-notebooks-docker"
 	@echo ""
 	@echo "📓 Notebook workflow:"
-	@echo "  make notebooks-html && make jupyter"
+	@echo "  make notebooks-execute && make jupyter"
 
 # Install dependencies
 install:
@@ -131,6 +132,22 @@ notebooks-html:
 	uv run --with jupytext jupytext --to notebook notebooks/02_bisulfite_conversion_efficiency.py --output output/notebooks/02_bisulfite_conversion_efficiency.ipynb
 	@echo "✅ Notebooks converted to .ipynb format"
 	@echo "📂 Notebook files saved to output/notebooks/"
+	@echo "💡 Open with: jupyter lab output/notebooks/"
+
+# Convert and execute notebooks to generate outputs
+notebooks-execute:
+	@echo "🔄 Converting and executing notebooks with outputs..."
+	mkdir -p output/notebooks
+	@echo "🔄 Converting variant calling notebook..."
+	uv run --with jupytext jupytext --to notebook notebooks/01_variant_calling_pipeline.py --output output/notebooks/01_variant_calling_pipeline.ipynb
+	@echo "🔄 Executing variant calling notebook..."
+	uv run papermill output/notebooks/01_variant_calling_pipeline.ipynb output/notebooks/01_variant_calling_pipeline.ipynb -k python3
+	@echo "🔄 Converting bisulfite analysis notebook..."
+	uv run --with jupytext jupytext --to notebook notebooks/02_bisulfite_conversion_efficiency.py --output output/notebooks/02_bisulfite_conversion_efficiency.ipynb
+	@echo "🔄 Executing bisulfite analysis notebook..."
+	uv run papermill output/notebooks/02_bisulfite_conversion_efficiency.ipynb output/notebooks/02_bisulfite_conversion_efficiency.ipynb -k python3
+	@echo "✅ Notebooks converted and executed with outputs"
+	@echo "📂 Executed notebook files saved to output/notebooks/"
 	@echo "💡 Open with: jupyter lab output/notebooks/"
 
 # Run notebooks and save outputs
