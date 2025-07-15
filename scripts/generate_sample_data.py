@@ -252,6 +252,79 @@ def create_sample_bam_info(reference_seq: str, variants_df: pd.DataFrame, output
     return coverage_df
 
 
+def create_sample_bam_file(reference_seq: str, output_path: str, num_reads: int = 100) -> None:
+    """Create a sample BAM file with properly formatted read names.
+
+    Args:
+        reference_seq: Reference sequence to align reads to
+        output_path: Path for output BAM file
+        num_reads: Number of read pairs to generate
+    """
+    print(f"Creating sample BAM file with {num_reads} read pairs...")
+
+    import pysam
+
+    # Create BAM header with proper format
+    header = {
+        "HD": {"VN": "1.6", "SO": "coordinate"},
+        "SQ": [{"SN": "chr22_sample", "LN": len(reference_seq)}],
+        "RG": [{"ID": "sample_rg", "SM": "NA12878", "LB": "lib1", "PL": "ILLUMINA", "PU": "unit1"}],
+    }
+
+    # Create properly formatted BAM file
+    with pysam.AlignmentFile(output_path, "wb", header=header) as outfile:
+        for i in range(num_reads):
+            # Standard Illumina read name format: INSTRUMENT:RUN:FLOWCELL:LANE:TILE:X:Y
+            read_name = f"SIMULATOR:1:FC123:1:1101:{1000 + i}:{2000 + i}"
+
+            # Random position ensuring reads fit in reference
+            start_pos = random.randint(0, len(reference_seq) - 150)
+            read_length = 75
+
+            # Read 1 (forward)
+            read1 = pysam.AlignedSegment()
+            read1.query_name = read_name
+            read1.query_sequence = reference_seq[start_pos : start_pos + read_length]
+            read1.flag = 99  # Properly paired, read1, mate reverse
+            read1.reference_id = 0  # chr22_sample
+            read1.reference_start = start_pos
+            read1.mapping_quality = 60
+            read1.cigartuples = [(0, read_length)]  # Perfect match (0=M)
+            read1.next_reference_id = 0
+            read1.next_reference_start = start_pos + 75  # Mate position
+            read1.template_length = 150
+            import array
+
+            read1.query_qualities = array.array("B", [30] * read_length)  # High quality
+            read1.set_tag("RG", "sample_rg")
+            outfile.write(read1)
+
+            # Read 2 (reverse)
+            read2 = pysam.AlignedSegment()
+            read2.query_name = read_name
+            read2.query_sequence = reference_seq[start_pos + 75 : start_pos + 150]
+            read2.flag = 147  # Properly paired, read2, reverse
+            read2.reference_id = 0
+            read2.reference_start = start_pos + 75
+            read2.mapping_quality = 60
+            read2.cigartuples = [(0, read_length)]
+            read2.next_reference_id = 0
+            read2.next_reference_start = start_pos
+            read2.template_length = -150
+            read2.query_qualities = array.array("B", [30] * read_length)
+            read2.set_tag("RG", "sample_rg")
+            outfile.write(read2)
+
+    print(f"BAM file written to {output_path}")
+
+    # Create BAM index
+    try:
+        pysam.index(output_path)
+        print(f"BAM index created: {output_path}.bai")
+    except Exception as e:
+        print(f"Warning: Could not create BAM index: {e}")
+
+
 def main():
     """Generate all sample data files."""
     print("🧬 Generating sample data for GATK and bisulfite analysis...")
@@ -280,6 +353,12 @@ def main():
     bisulfite_reads_path = data_dir / "bisulfite_sample.fastq"
     reads = create_bisulfite_reads(reference_seq, str(bisulfite_reads_path), num_reads=2000)
 
+    # Create properly formatted BAM file with alignment data
+    alignments_dir = data_dir / "alignments"
+    alignments_dir.mkdir(exist_ok=True)
+    bam_path = alignments_dir / "NA12878_chr22_sample_fixed.bam"
+    create_sample_bam_file(reference_seq, str(bam_path), num_reads=50)
+
     # Create a sample sheet
     sample_sheet = pd.DataFrame(
         {
@@ -300,6 +379,7 @@ def main():
     print(f"   • {variants_path.name} - Sample variants ({len(variants_df)} variants)")
     print(f"   • {bam_stats_path.name} - Alignment statistics")
     print(f"   • {bisulfite_reads_path.name} - Bisulfite reads ({len(reads)} reads)")
+    print(f"   • {bam_path.name} - Properly formatted BAM file (50 read pairs)")
     print(f"   • {sample_sheet_path.name} - Sample sheet")
 
     print("\n📊 Dataset Summary:")

@@ -205,15 +205,54 @@ class ValidationResults(TypedDict):
     production_ready: bool
 
 
-def validate_against_giab_truth() -> ValidationResults:
-    """Validate variant calling accuracy against GIAB ground truth."""
-    return {
-        "f1_score": 0.935,
-        "sensitivity": 0.95,
-        "precision": 0.92,
-        "ti_tv_ratio": 2.1,
-        "production_ready": True,
-    }
+def validate_against_giab_truth(
+    called_vcf: str = "output/final_variants.vcf.gz",
+    truth_vcf: str = "data/giab/HG001_GRCh38_1_22_v4.2.1_benchmark.vcf.gz",
+) -> ValidationResults:
+    """Validate variant calling accuracy against GIAB ground truth.
+
+    Args:
+        called_vcf: Path to called variants VCF file
+        truth_vcf: Path to GIAB truth VCF file
+
+    Returns:
+        ValidationResults with real calculated metrics
+    """
+    try:
+        # Use the real validation function from variant_calling_utils
+        from src.variant_calling_utils import validate_variant_calling_accuracy
+
+        validation_results = validate_variant_calling_accuracy(called_vcf, truth_vcf)
+
+        # Determine if production ready based on thresholds
+        f1_score = validation_results.get("f1_score", 0.0)
+        ti_tv_ratio = validation_results.get("ti_tv_ratio", 0.0)
+
+        # Production ready criteria
+        production_ready = (
+            f1_score >= 0.85  # F1 score threshold
+            and 1.8 <= ti_tv_ratio <= 2.5  # Ti/Tv ratio in expected range
+            and validation_results.get("vcf_valid", False)  # Valid VCF format
+        )
+
+        return {
+            "f1_score": f1_score,
+            "sensitivity": validation_results.get("sensitivity", 0.0),
+            "precision": validation_results.get("precision", 0.0),
+            "ti_tv_ratio": ti_tv_ratio,
+            "production_ready": production_ready,
+        }
+
+    except Exception as e:
+        logger.error("Error validating against GIAB truth: %s", e)
+        # Return conservative defaults on error
+        return {
+            "f1_score": 0.0,
+            "sensitivity": 0.0,
+            "precision": 0.0,
+            "ti_tv_ratio": 0.0,
+            "production_ready": False,
+        }
 
 
 def analyze_technical_challenges() -> dict[str, str]:

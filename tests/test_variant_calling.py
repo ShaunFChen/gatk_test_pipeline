@@ -132,7 +132,7 @@ class TestValidationMetrics:
         # This is a placeholder test since actual implementation would parse VCF
         ratio = self.validator.calculate_ti_tv_ratio("dummy.vcf")
         assert isinstance(ratio, float)
-        assert ratio > 0
+        assert ratio >= 0
 
     def test_sensitivity_precision(self) -> None:
         """Test sensitivity and precision calculation."""

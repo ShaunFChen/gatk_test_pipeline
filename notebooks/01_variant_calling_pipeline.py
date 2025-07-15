@@ -1,4 +1,29 @@
 # %% [markdown]
+# # 🔧 Environment Setup
+# **Run this cell first to configure the environment for IDE sessions**
+
+# %%
+# Import and run environment setup
+import sys
+from pathlib import Path
+
+# Add basic path handling to enable imports
+current_dir = Path.cwd()
+if "gatk_test_pipeline" in str(current_dir):
+    project_root = current_dir
+    while project_root.name != "gatk_test_pipeline" and project_root.parent != project_root:
+        project_root = project_root.parent
+    if project_root.name == "gatk_test_pipeline" and str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+# Import and run the environment setup function
+from src.variant_calling_utils import setup_environment
+
+setup_environment()
+
+print("🎯 Ready to run GATK Variant Calling Pipeline!\n")
+
+# %% [markdown]
 # # GATK Variant Calling Pipeline - Tech Test Implementation
 #
 # ## Overview
@@ -20,13 +45,11 @@
 # - **Quality**: Ti/Tv ratio validation and comprehensive QC
 # - **Scale**: Production-ready with real genomic data (185MB)
 
+
 # %%
-# Environment Setup and Dependencies
-import sys
 import time
 import matplotlib.pyplot as plt
 import psutil
-from pathlib import Path
 
 
 # Smart plotting for both interactive and non-interactive environments
@@ -69,7 +92,12 @@ def setup_project_imports():
 project_root = setup_project_imports()
 
 # Import utility functions from src package
-from src.variant_calling_utils import check_dependencies, build_gatk_command, calculate_ti_tv_ratio
+from src.variant_calling_utils import (
+    check_dependencies,
+    build_gatk_command,
+    calculate_ti_tv_ratio,
+    run_command_with_gatk_handling,
+)
 from src.performance_analysis import PipelinePerformanceAnalyzer
 from src.real_data_analysis import analyze_giab_ground_truth
 
@@ -104,12 +132,17 @@ analyzer.start_monitoring()
 config = {
     "threads": 4,
     "memory": "8g",
-    "reference": str(DATA_DIR / "reference" / "chr22.fa"),
-    "known_sites": str(DATA_DIR / "sample_variants.vcf"),
+    "reference": "data/reference/chr22.fa",
+    "known_sites": "data/giab/HG001_GRCh38_1_22_v4.2.1_benchmark.vcf.gz",
+    "input_bam": "data/alignments/NA12878_chr22_sample_fixed.bam",  # Use properly formatted data
     "interval": "chr22:1-51304566",
 }
 
 print("=== GATK Best Practices Pipeline ===\n")
+print("Using real data from:")
+print(f"• Reference: {config['reference']}")
+print(f"• Known sites: {config['known_sites']}")
+print(f"• Input BAM: {config['input_bam']}\n")
 
 # Step 1: MarkDuplicates
 print("1. MarkDuplicates")
@@ -117,15 +150,20 @@ start_time = time.time()
 mark_dup_cmd = build_gatk_command(
     tool="MarkDuplicates",
     inputs={
-        "input": "sample_aligned.bam",
-        "output": str(OUTPUT_DIR / "marked_duplicates.bam"),
-        "metrics_file": str(OUTPUT_DIR / "duplicate_metrics.txt"),
+        "input": config["input_bam"],
+        "output": "output/marked_duplicates.bam",
+        "metrics_file": "output/duplicate_metrics.txt",
     },
     memory=config["memory"],
     threads=config["threads"],
 )
 print(f"Command: {mark_dup_cmd}")
-time.sleep(0.5)  # Simulate processing
+success, result = run_command_with_gatk_handling(mark_dup_cmd, "MarkDuplicates")
+print(f"📊 Return code: {result.returncode}")
+if success:
+    print("✅ Command completed successfully")
+else:
+    print("❌ Command failed - check logs for details")
 duration = time.time() - start_time
 analyzer.record_step("MarkDuplicates", duration, 2048**3)
 print(f"✓ Completed in {duration:.2f}s\n")
@@ -136,18 +174,48 @@ start_time = time.time()
 bqsr_cmd = build_gatk_command(
     tool="BaseRecalibrator",
     inputs={
-        "input": str(OUTPUT_DIR / "marked_duplicates.bam"),
+        "input": "output/marked_duplicates.bam",
         "reference": config["reference"],
-        "known_sites": config["known_sites"],
-        "output": str(OUTPUT_DIR / "recalibration_report.grp"),
+        "known_sites": [config["known_sites"]],
+        "output": "output/recalibration_report.grp",
     },
     memory=config["memory"],
     threads=config["threads"],
 )
 print(f"Command: {bqsr_cmd}")
-time.sleep(0.8)
+success, result = run_command_with_gatk_handling(bqsr_cmd, "BaseRecalibrator")
+print(f"📊 Return code: {result.returncode}")
+if success:
+    print("✅ Command completed successfully")
+else:
+    print("❌ Command failed - check logs for details")
 duration = time.time() - start_time
 analyzer.record_step("BQSR", duration, 1536**3)
+print(f"✓ Completed in {duration:.2f}s\n")
+
+# Step 2.5: Apply Base Quality Score Recalibration
+print("2.5. ApplyBQSR")
+start_time = time.time()
+apply_bqsr_cmd = build_gatk_command(
+    tool="ApplyBQSR",
+    inputs={
+        "input": "output/marked_duplicates.bam",
+        "reference": config["reference"],
+        "recal_table": "output/recalibration_report.grp",
+        "output": "output/recalibrated.bam",
+    },
+    memory=config["memory"],
+    threads=config["threads"],
+)
+print(f"Command: {apply_bqsr_cmd}")
+success, result = run_command_with_gatk_handling(apply_bqsr_cmd, "ApplyBQSR")
+print(f"📊 Return code: {result.returncode}")
+if success:
+    print("✅ Command completed successfully")
+else:
+    print("❌ Command failed - check logs for details")
+duration = time.time() - start_time
+analyzer.record_step("ApplyBQSR", duration, 2048**3)
 print(f"✓ Completed in {duration:.2f}s\n")
 
 # Step 3: Variant Calling
@@ -156,16 +224,21 @@ start_time = time.time()
 hc_cmd = build_gatk_command(
     tool="HaplotypeCaller",
     inputs={
-        "input": str(OUTPUT_DIR / "recalibrated.bam"),
+        "input": "output/recalibrated.bam",
         "reference": config["reference"],
-        "output": str(OUTPUT_DIR / "variants.g.vcf.gz"),
-        "emit_ref_confidence": "GVCF",
+        "output": "output/variants.g.vcf.gz",
+        "sample_name": "NA12878",
     },
     memory=config["memory"],
     threads=config["threads"],
 )
 print(f"Command: {hc_cmd}")
-time.sleep(1.2)
+success, result = run_command_with_gatk_handling(hc_cmd, "HaplotypeCaller")
+print(f"📊 Return code: {result.returncode}")
+if success:
+    print("✅ Command completed successfully")
+else:
+    print("❌ Command failed - check logs for details")
 duration = time.time() - start_time
 analyzer.record_step("HaplotypeCaller", duration, 4096**3)
 print(f"✓ Completed in {duration:.2f}s\n")
@@ -177,14 +250,19 @@ gg_cmd = build_gatk_command(
     tool="GenotypeGVCFs",
     inputs={
         "reference": config["reference"],
-        "variant": str(OUTPUT_DIR / "variants.g.vcf.gz"),
-        "output": str(OUTPUT_DIR / "final_variants.vcf.gz"),
+        "variant": "output/variants.g.vcf.gz",
+        "output": "output/final_variants.vcf.gz",
     },
     memory=config["memory"],
     threads=config["threads"],
 )
 print(f"Command: {gg_cmd}")
-time.sleep(0.7)
+success, result = run_command_with_gatk_handling(gg_cmd, "GenotypeGVCFs")
+print(f"📊 Return code: {result.returncode}")
+if success:
+    print("✅ Command completed successfully")
+else:
+    print("❌ Command failed - check logs for details")
 duration = time.time() - start_time
 analyzer.record_step("GenotypeGVCFs", duration, 3072**3)
 print(f"✓ Completed in {duration:.2f}s\n")
@@ -233,16 +311,6 @@ smart_plot_output("performance_analysis")
 print("\n=== Quality Assessment ===")
 
 # Ti/Tv ratio analysis
-sample_vcf = DATA_DIR / "sample_variants.vcf"
-if sample_vcf.exists():
-    ti_tv_ratio = calculate_ti_tv_ratio(str(sample_vcf))
-    print(f"Ti/Tv Ratio: {ti_tv_ratio:.3f}")
-    print(
-        "✓ Ti/Tv ratio indicates good quality variants"
-        if ti_tv_ratio >= 1.8
-        else "⚠️ Ti/Tv ratio suggests potential quality issues"
-    )
-
 # GIAB validation (real data analysis)
 giab_vcf = DATA_DIR / "giab" / "HG001_GRCh38_1_22_v4.2.1_benchmark.vcf.gz"
 if giab_vcf.exists():

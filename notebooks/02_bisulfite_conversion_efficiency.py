@@ -1,4 +1,29 @@
 # %% [markdown]
+# # 🔧 Environment Setup
+# **Run this cell first to configure the environment for IDE sessions**
+
+# %%
+# Import and run environment setup
+import sys
+from pathlib import Path
+
+# Add basic path handling to enable imports
+current_dir = Path.cwd()
+if "gatk_test_pipeline" in str(current_dir):
+    project_root = current_dir
+    while project_root.name != "gatk_test_pipeline" and project_root.parent != project_root:
+        project_root = project_root.parent
+    if project_root.name == "gatk_test_pipeline" and str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+# Import and run the environment setup function
+from src.variant_calling_utils import setup_environment
+
+setup_environment()
+
+print("🎯 Ready to run Bisulfite Conversion Analysis!\n")
+
+# %% [markdown]
 # # Bisulfite Conversion Efficiency Analysis - Tech Test Implementation
 #
 # ## Overview
@@ -27,11 +52,9 @@
 
 # %%
 # Environment Setup and Dependencies
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import psutil
-from pathlib import Path
 import random
 import warnings
 
