@@ -183,6 +183,7 @@ gatk_test_pipeline/
 │   ├── reference/       # Reference genome files
 │   └── README.md        # Data documentation
 ├── notebooks/            # Analysis notebooks as Python files
+│   ├── executed_ipynb/   # Executed notebooks as .ipynb files
 │   ├── 01_variant_calling_pipeline.py
 │   ├── 02_bisulfite_conversion_efficiency.py
 │   └── README.md        # Notebook documentation
