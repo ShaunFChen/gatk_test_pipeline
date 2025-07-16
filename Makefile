@@ -18,7 +18,7 @@ help:
 	@echo "  build              - Build the package"
 	@echo ""
 	@echo "Notebook targets:"
-	@echo "  notebooks-execute  - Convert and execute .py notebooks to .ipynb with outputs"
+	@echo "  notebooks-execute  - Convert and execute all .py notebooks to .ipynb with outputs"
 	@echo "  jupyter            - Start Jupyter Lab"
 	@echo ""
 	@echo "CI/Testing:"
@@ -29,6 +29,7 @@ help:
 	@echo ""
 	@echo "📓 Notebook workflow:"
 	@echo "  make notebooks-execute && make jupyter"
+	@echo "  # Then open notebooks/executed_ipynb/ in Jupyter"
 
 # Install dependencies
 install:
@@ -71,7 +72,7 @@ clean:
 	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ __pycache__/
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	rm -rf output/notebooks/*.ipynb output/notebooks/*.txt
+	rm -rf notebooks/executed_ipynb/*.ipynb
 	@echo "✅ Cleanup completed"
 
 # Build the package
@@ -88,19 +89,22 @@ jupyter:
 
 # Convert and execute notebooks to generate outputs with executed cells
 notebooks-execute:
-	@echo "🔄 Converting and executing notebooks with outputs..."
-	mkdir -p output/notebooks
-	@echo "🔄 Converting variant calling notebook..."
-	uv run --with jupytext jupytext --to notebook notebooks/01_variant_calling_pipeline.py --output output/notebooks/01_variant_calling_pipeline.ipynb
-	@echo "🔄 Executing variant calling notebook..."
-	uv run papermill output/notebooks/01_variant_calling_pipeline.ipynb output/notebooks/01_variant_calling_pipeline.ipynb -k python3
-	@echo "🔄 Converting bisulfite analysis notebook..."
-	uv run --with jupytext jupytext --to notebook notebooks/02_bisulfite_conversion_efficiency.py --output output/notebooks/02_bisulfite_conversion_efficiency.ipynb
-	@echo "🔄 Executing bisulfite analysis notebook..."
-	uv run papermill output/notebooks/02_bisulfite_conversion_efficiency.ipynb output/notebooks/02_bisulfite_conversion_efficiency.ipynb -k python3
-	@echo "✅ Notebooks converted and executed with outputs"
-	@echo "📂 Executed notebook files saved to output/notebooks/"
-	@echo "💡 Open with: jupyter lab output/notebooks/"
+	@echo "🔄 Converting and executing all notebooks with outputs..."
+	mkdir -p notebooks/executed_ipynb
+	@echo "🔍 Finding all .py notebook files in notebooks/..."
+	@for notebook in notebooks/*.py; do \
+		if [ -f "$$notebook" ] && grep -q "# %%" "$$notebook"; then \
+			basename=$$(basename "$$notebook" .py); \
+			echo "🔄 Converting $$basename.py..."; \
+			uv run --with jupytext jupytext --to notebook "$$notebook" --output "notebooks/executed_ipynb/$$basename.ipynb"; \
+			echo "🔄 Executing $$basename.ipynb..."; \
+			uv run papermill "notebooks/executed_ipynb/$$basename.ipynb" "notebooks/executed_ipynb/$$basename.ipynb" -k python3; \
+		fi; \
+	done
+	@echo "✅ All notebooks converted and executed with outputs"
+	@echo "📂 Executed notebook files saved to notebooks/executed_ipynb/"
+	@echo "💡 Open with: jupyter lab notebooks/executed_ipynb/"
+	@echo "🚀 These files can be committed to git for sharing results"
 
 # CI simulation - run exactly what GitHub Actions will run
 ci-check:
