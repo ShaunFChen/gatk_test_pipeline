@@ -1,8 +1,8 @@
 # GATK Test Pipeline
 
-A comprehensive bioinformatics pipeline for variant calling and bisulfite conversion analysis, designed for technical interviews and educational purposes.
+Fully derived using agenetic coding with Claude 4 from scratch - A comprehensive bioinformatics pipeline for variant calling and bisulfite conversion analysis, designed for educational purposes.
 
-## 🎯 Interview Ready Features
+## 🎯 Features
 
 - **Real Working Code**: Actual implementations, not pseudocode
 - **Sample Data Generation**: Creates realistic genomic data for analysis  
